@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="UTF-8">
+    <title>Geçmişten Günümüze Türkler.Responsive</title>
+    
+
+  </head>
+    
+  <body>
+  <!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Türk Devletleri Haritası</title>
+    <link
+        rel="stylesheet"
+        href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        crossorigin=""
+    />
+    <style>
+        html, body {
+            margin: 0; padding: 0; height: 100vh; width: 100vw;
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+        }
+        #controls {
+            position: fixed;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1100;
+            background: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            box-shadow: 0 1px 5px rgba(0,0,0,0.3);
+            font-size: 16px;
+            text-align: center;
+        }
+        #map, #wiki {
+            height: 50vh;
+            width: 100vw;
+            box-sizing: border-box;
+        }
+        #map {
+            border-bottom: 2px solid #ccc;
+        }
+        #wiki iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            display: block;
+        }
+        @media (min-width: 768px) {
+            body {
+                flex-direction: row;
+            }
+            #map, #wiki {
+                height: 100vh;
+                width: 50vw;
+            }
+            #map {
+                border-right: 2px solid #ccc;
+                border-bottom: none;
+            }
+            #controls {
+                left: 10px;
+                transform: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="controls">
+        <label for="devletSelect">Devlet Seçin: </label>
+        <select id="devletSelect">
+             <option value="buyukHun">🏹 Büyük Hun İmparatorluğu (MÖ 220 - MS 46)</option>
+             <option value="gokturk">🏹 Göktürk Kağanlığı (552 - 744)</option>
+             <option value="uygur">🏹 Uygur Kağanlığı (744 - 840)</option>
+             <option value="karahanli">⚔️ Karahanlılar (840 - 1212)</option>
+             <option value="gazneli">⚔️ Gazneliler (963 - 1186)</option>
+             <option value="buyukSelcuklu">⚔️ Büyük Selçuklu İmparatorluğu (1037 - 1194)</option>
+             <option value="harzemsah">⚔️ Harzemşahlar (1077 - 1231)</option>
+             <option value="anadoluSelcuklu">🏰 Anadolu Selçuklu Devleti (1077 - 1308)</option>
+             <option value="altinOrda">🛡️ Altın Orda Devleti (1242 - 1502)</option>
+             <option value="timur">🛡️ Timur İmparatorluğu (1370 - 1507)</option>
+             <option value="babur">🛡️ Babür İmparatorluğu (1526 - 1858)</option>
+             <option value="osmanli">🦅 Osmanlı İmparatorluğu (1299 - 1922)</option>
+             <option value="modern">Günümüz</option>
+        </select>
+    </div>
+
+    <div id="map"></div>
+    <div id="wiki">
+        <iframe
+            id="wikiFrame"
+            src="https://tr.wikipedia.org/wiki/Vikipedi:Ana_Sayfa"
+            title="Wikipedia"
+            sandbox="allow-same-origin allow-scripts allow-popups"
+        ></iframe>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+    <script>
+        const map = L.map('map').setView([40, 40], 3);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 18,
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+
+        // Veriler: [Devlet, Şehir, Ülke, [lat, lng]]
+        const data = {
+            buyukHun: [
+                ["Büyük Hun İmparatorluğu", "Ötüken", "Moğolistan", [47.33, 101.55]],
+                ["Büyük Hun İmparatorluğu", "Orhun Vadisi", "Moğolistan", [47.35, 102.85]],
+                ["Büyük Hun İmparatorluğu", "Luoyang", "Çin", [34.66, 112.42]],
+                ["Büyük Hun İmparatorluğu", "Pingcheng (Datong)", "Çin", [40.09, 113.29]],
+                ["Büyük Hun İmparatorluğu", "Karabalgasun", "Moğolistan", [47.32, 102.83]],
+                ["Büyük Hun İmparatorluğu", "Altay Dağları", "Moğolistan", [48.99999629742055, 88.99999965023088]],
+                ["Büyük Hun İmparatorluğu", "Turfan", "Çin", [42.95, 89.18]],
+                ["Büyük Hun İmparatorluğu", "Beşbalık", "Çin", [44.00, 86.90]],
+                ["Büyük Hun İmparatorluğu", "Çang'an", "Çin", [34.27, 108.94]],
+                ["Büyük Hun İmparatorluğu", "Hohhot", "Çin", [40.82, 111.65]],
+                ["Büyük Hun İmparatorluğu", "Wei Nehri", "Çin", [34.23, 108.19]],
+                ["Büyük Hun İmparatorluğu", "Yin Dağları", "Çin", [41.28, 108.80]],
+                ["Büyük Hun İmparatorluğu", "Ordos", "Çin", [39.61, 109.78]],
+                ["Büyük Hun İmparatorluğu", "Bilge Kağan Anıtı", "Moğolistan", [47.56, 102.84]],
+                ["Büyük Hun İmparatorluğu", "Kansu", "Çin", [37.23, 103.25]],
+                ["Büyük Hun İmparatorluğu", "Lou-fan", "Çin", [38.07, 111.79]],
+                ["Büyük Hun İmparatorluğu", "Şansi", "Çin", [37.03, 112.26]],
+                ["Büyük Hun İmparatorluğu", "Datong", "Çin", [40.09, 113.30]]
+            ],
+
+            gokturk: [
+                ["Göktürk Kağanlığı", "Ötüken", "Moğolistan", [47.33, 101.55]],
+                ["Göktürk Kağanlığı", "Ordu-Balık", "Moğolistan", [47.32, 102.83]],
+                ["Göktürk Kağanlığı", "Beşbalık", "Çin", [44.00, 86.90]],
+                ["Göktürk Kağanlığı", "Turfan", "Çin", [42.95, 89.18]],
+                ["Göktürk Kağanlığı", "Semerkant", "Özbekistan", [39.65, 66.97]],
+                ["Göktürk Kağanlığı", "Taşkent", "Özbekistan", [41.31, 69.28]],
+                ["Göktürk Kağanlığı", "Fergana", "Özbekistan", [40.38, 71.78]],
+                ["Göktürk Kağanlığı", "Issık Göl", "Kırgızistan", [42.42, 77.25]],
+                ["Büyük Hun İmparatorluğu", "Altay Dağları", "Moğolistan", [48.99999629742055, 88.99999965023088]],
+                ["Göktürk Kağanlığı", "Bişkek", "Kırgızistan", [42.87, 74.60]]
+            ],
+
+            uygur: [
+                ["Uygur Kağanlığı", "Karabalgasun", "Moğolistan", [47.32, 102.83]],
+                ["Uygur Kağanlığı", "Beşbalık", "Çin", [44.00, 86.90]],
+                ["Uygur Kağanlığı", "Turfan", "Çin", [42.95, 89.18]],
+                ["Uygur Kağanlığı", "Kaşgar", "Çin", [39.47, 75.99]],
+                ["Uygur Kağanlığı", "Hotan", "Çin", [37.12, 79.93]],
+                ["Uygur Kağanlığı", "Karahoca", "Çin", [42.93, 89.18]],
+                ["Uygur Kağanlığı", "Urumçi", "Çin", [43.82, 87.61]],
+                ["Uygur Kağanlığı", "Aksu İli", "Çin", [41.15, 80.25]],
+                ["Uygur Kağanlığı", "Kumul İli", "Çin", [42.82, 93.51]],
+                ["Uygur Kağanlığı", "Balasagun", "Kırgızistan", [42.83, 75.30]]
+            ],
+
+            karahanli: [
+                ["Karahanlılar", "Balasagun", "Kırgızistan", [42.83, 75.30]],
+                ["Karahanlılar", "Kaşgar", "Çin", [39.47, 75.99]],
+                ["Karahanlılar", "Semerkant", "Özbekistan", [39.65, 66.97]],
+                ["Karahanlılar", "Fergana", "Özbekistan", [40.38, 71.78]],
+                ["Karahanlılar", "Hotan", "Çin", [37.12, 79.93]],
+                ["Karahanlılar", "Taşkent", "Özbekistan", [41.31, 69.28]],
+                ["Karahanlılar", "Oş", "Kırgızistan", [40.53, 72.80]],
+                ["Karahanlılar", "Buhara", "Özbekistan", [39.77, 64.43]],
+                ["Karahanlılar", "Almalık", "Kazakistan", [43.88, 81.77]],
+                ["Karahanlılar", "Yarkent", "Çin", [38.41, 77.24]]
+            ],
+
+            gazneli: [
+                ["Gazneliler", "Gazne", "Afganistan", [33.56, 68.42]],
+                ["Gazneliler", "Lahor", "Pakistan", [31.58, 74.35]],
+                ["Gazneliler", "Leşkergah", "Afganistan", [31.50, 64.36]],
+                ["Gazneliler", "Kabil", "Afganistan", [34.53, 69.17]],
+                ["Gazneliler", "Multan", "Pakistan", [30.19, 71.46]],
+                ["Gazneliler", "Herat", "Afganistan", [34.35, 62.20]],
+                ["Gazneliler", "Kandahar", "Afganistan", [31.61, 65.70]],
+                ["Gazneliler", "Peşaver", "Pakistan", [34.00, 71.50]],
+                ["Gazneliler", "Kandehar", "Afganistan", [31.62, 65.71]],
+                ["Gazneliler", "Kalat, Afganistan", "Afganistan", [32.10, 66.90]]
+            ],
+
+            buyukSelcuklu: [
+                ["Büyük Selçuklu İmparatorluğu", "Nişabur", "İran", [36.21, 58.79]],
+                ["Büyük Selçuklu İmparatorluğu", "Rey", "İran", [35.65, 51.44]],
+                ["Büyük Selçuklu İmparatorluğu", "İsfahan", "İran", [32.65, 51.67]],
+                ["Büyük Selçuklu İmparatorluğu", "Merv", "Türkmenistan", [37.66, 62.18]],
+                ["Büyük Selçuklu İmparatorluğu", "Bağdat", "Irak", [33.32, 44.36]],
+                ["Büyük Selçuklu İmparatorluğu", "Tus, İran", "İran", [36.48, 59.60]],
+                ["Büyük Selçuklu İmparatorluğu", "Herat", "Afganistan", [34.35, 62.20]],
+                ["Büyük Selçuklu İmparatorluğu", "Belh", "Afganistan", [36.75, 66.90]],
+                ["Büyük Selçuklu İmparatorluğu", "Musul", "Irak", [36.34, 43.13]],
+                ["Büyük Selçuklu İmparatorluğu", "Tebriz", "İran", [38.08, 46.29]]
+            ],
+
+            harzemsah: [
+                ["Harzemşahlar", "Ürgenç", "Türkmenistan", [42.32, 59.15]],
+                ["Harzemşahlar", "Merv", "Türkmenistan", [37.66, 62.18]],
+                ["Harzemşahlar", "Nişabur", "İran", [36.21, 58.79]],
+                ["Harzemşahlar", "Semerkant", "Özbekistan", [39.65, 66.97]],
+                ["Harzemşahlar", "Buhara", "Özbekistan", [39.77, 64.43]],
+                ["Harzemşahlar", "Rey", "İran", [35.65, 51.44]],
+                ["Harzemşahlar", "Tebriz", "İran", [38.08, 46.29]],
+                ["Harzemşahlar", "Harezm", "Özbekistan", [41.38, 60.36]],
+                ["Harzemşahlar", "Belh", "Afganistan", [36.75, 66.90]],
+                ["Harzemşahlar", "Herat", "Afganistan", [34.35, 62.20]]
+            ],
+
+            anadoluSelcuklu: [
+                ["Anadolu Selçuklu Devleti", "Konya", "Türkiye", [37.87, 32.48]],
+                ["Anadolu Selçuklu Devleti", "Sivas", "Türkiye", [39.75, 37.02]],
+                ["Anadolu Selçuklu Devleti", "Kayseri", "Türkiye", [38.73, 35.48]],
+                ["Anadolu Selçuklu Devleti", "Alanya", "Türkiye", [36.54, 31.99]],
+                ["Anadolu Selçuklu Devleti", "Antalya", "Türkiye", [36.89, 30.70]],
+                ["Anadolu Selçuklu Devleti", "Tokat", "Türkiye", [40.31, 36.55]],
+                ["Anadolu Selçuklu Devleti", "Malatya", "Türkiye", [38.35, 38.31]],
+                ["Anadolu Selçuklu Devleti", "Sinop", "Türkiye", [42.03, 35.15]],
+                ["Anadolu Selçuklu Devleti", "Erzurum", "Türkiye", [39.90, 41.27]],
+                ["Anadolu Selçuklu Devleti", "Aksaray", "Türkiye", [38.37, 34.03]]
+            ],
+
+            altinOrda: [
+                ["Altın Orda Devleti", "Saray Batu", "Rusya", [47.15, 46.70]],
+                ["Altın Orda Devleti", "Kazan, Tataristan", "Rusya", [55.79, 49.12]],
+                ["Altın Orda Devleti", "Astrahan", "Rusya", [46.35, 48.03]],
+                ["Altın Orda Devleti", "Kırım (Bahçesaray)", "Ukrayna", [44.75, 33.87]],
+                ["Altın Orda Devleti", "Sarai Berke", "Rusya", [48.70, 45.47]],
+                ["Altın Orda Devleti", "Ufa", "Rusya", [54.73, 55.95]],
+                ["Altın Orda Devleti", "Volgograd", "Rusya", [48.70, 44.51]],
+                ["Altın Orda Devleti", "Derbent, Dağıstan", "Rusya", [42.06, 48.29]],
+                ["Altın Orda Devleti", "Tebriz", "İran", [38.08, 46.29]],
+                ["Altın Orda Devleti", "Tiflis", "Gürcistan", [41.72, 44.78]]
+            ],
+
+            timur: [
+                ["Timur İmparatorluğu", "Semerkant", "Özbekistan", [39.65, 66.97]],
+                ["Timur İmparatorluğu", "Herat", "Afganistan", [34.35, 62.20]],
+                ["Timur İmparatorluğu", "Buhara", "Özbekistan", [39.77, 64.43]],
+                ["Timur İmparatorluğu", "Şiraz", "İran", [29.61, 52.53]],
+                ["Timur İmparatorluğu", "İsfahan", "İran", [32.65, 51.67]],
+                ["Timur İmparatorluğu", "Tahran", "İran", [35.68, 51.41]],
+                ["Timur İmparatorluğu", "Taşkent", "Özbekistan", [41.31, 69.28]],
+                ["Timur İmparatorluğu", "Belh", "Afganistan", [36.75, 66.90]],
+                ["Timur İmparatorluğu", "Rey", "İran", [35.65, 51.44]],
+                ["Timur İmparatorluğu", "Nişabur", "İran", [36.21, 58.79]]
+            ],
+
+            babur: [
+                ["Babür İmparatorluğu", "Delhi", "Hindistan", [28.61, 77.20]],
+                ["Babür İmparatorluğu", "Agra", "Hindistan", [27.18, 78.01]],
+                ["Babür İmparatorluğu", "Lahor", "Pakistan", [31.58, 74.35]],
+                ["Babür İmparatorluğu", "Kabil", "Afganistan", [34.53, 69.17]],
+                ["Babür İmparatorluğu", "Fetihpûr Sikri Ulucamii", "Hindistan", [27.09, 77.66]],
+                ["Babür İmparatorluğu", "Haydarabad, Hindistan", "Hindistan", [17.38, 78.48]],
+                ["Babür İmparatorluğu", "Patna", "Hindistan", [25.61, 85.14]],
+                ["Babür İmparatorluğu", "Lahor", "Pakistan", [31.58, 74.35]],
+                ["Babür İmparatorluğu", "Kandehar", "Afganistan", [31.61, 65.70]],
+                ["Babür İmparatorluğu", "Dakka", "Bangladeş", [23.81, 90.41]]
+            ],
+
+            osmanli: [
+                ["Osmanlı İmparatorluğu", "Söğüt", "Türkiye", [40.01, 30.19]],
+                ["Osmanlı İmparatorluğu", "Bursa", "Türkiye", [40.19, 29.06]],
+                ["Osmanlı İmparatorluğu", "Edirne", "Türkiye", [41.68, 26.56]],
+                ["Osmanlı İmparatorluğu", "İstanbul", "Türkiye", [41.01, 28.96]],
+                ["Osmanlı İmparatorluğu", "Selanik", "Yunanistan", [40.64, 22.93]],
+                ["Osmanlı İmparatorluğu", "Şam", "Suriye", [33.51, 36.29]],
+                ["Osmanlı İmparatorluğu", "Bağdat", "Irak", [33.32, 44.36]],
+                ["Osmanlı İmparatorluğu", "Kahire", "Mısır", [30.04, 31.24]],
+                ["Osmanlı İmparatorluğu", "Saraybosna", "Bosna-Hersek", [43.86, 18.42]],
+                ["Osmanlı İmparatorluğu", "Belgrad", "Sırbistan", [44.81, 20.46]]
+            ],
+
+            modern: [
+                ["Modern Türk Devletleri", "Ankara", "Türkiye", [39.93, 32.85]],
+                ["Modern Türk Devletleri", "İstanbul", "Türkiye", [41.01, 28.96]],
+                ["Modern Türk Devletleri", "Bakü", "Azerbaycan", [40.38, 49.89]],
+                ["Modern Türk Devletleri", "Astana", "Kazakistan", [51.17, 71.43]],
+                ["Modern Türk Devletleri", "Bişkek", "Kırgızistan", [42.87, 74.60]],
+                ["Modern Türk Devletleri", "Taşkent", "Özbekistan", [41.31, 69.28]],
+                ["Modern Türk Devletleri", "Aşkabat", "Türkmenistan", [37.94, 58.38]],
+                ["Modern Türk Devletleri", "Lefkoşa", "Kuzey Kıbrıs Türk Cumhuriyeti", [35.18, 33.36]],
+                ["Modern Türk Devletleri", "Ulan Batur", "Moğolistan", [47.91, 106.91]],
+                ["Modern Türk Devletleri", "Nahçıvan", "Azerbaycan", [39.20, 45.41]]
+            ]
+        };
+
+        let markers = [];
+
+        function clearMarkers() {
+            markers.forEach(m => map.removeLayer(m));
+            markers = [];
+        }
+
+        function addMarkers(devlet) {
+            clearMarkers();
+            const items = data[devlet];
+            if(!items) return;
+
+            const bounds = [];
+
+            items.forEach(item => {
+                const [devlet, sehir, ulke, coords] = item;
+                const marker = L.marker(coords).addTo(map);
+                marker.bindPopup(`<b>${sehir}</b><br><i>${devlet}</i><br>${ulke}<br>Koordinat: ${coords[0].toFixed(2)}° N, ${coords[1].toFixed(2)}° E`);
+                marker.on('click', () => {
+                    showWikiPage(sehir);
+                });
+                markers.push(marker);
+                bounds.push(coords);
+            });
+
+            if(bounds.length > 0) {
+                map.fitBounds(bounds, {padding: [50, 50]});
+            }
+        }
+
+        function showWikiPage(cityName) {
+            const wikiPage = cityName.replace(/ /g, '_').replace(/\((.*?)\)/g, '').trim(); // Parantez içindeki ifadeleri kaldır
+            const wikiUrl = `https://tr.wikipedia.org/wiki/${encodeURIComponent(wikiPage)}`;
+            document.getElementById('wikiFrame').src = wikiUrl;
+        }
+
+        // İlk devlet yükle ve haritayı tüm işaretleri gösterecek şekilde ayarla (ilk yüklendiğinde Hunları göster)
+        addMarkers('buyukHun');
+
+        document.getElementById('devletSelect').addEventListener('change', e => {
+            addMarkers(e.target.value);
+        });
+    </script>
+</body>
+</html>
+    
+  </body>
+  
+</html>
